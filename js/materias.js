@@ -57,6 +57,7 @@ function cardMateria(m) {
           <span class="card-title">${m.nombre}</span>
         </div>
         <div class="card-actions">
+          <button class="btn-secondary btn-sm" onclick="openModalRecursos('${m.id}')" title="Recursos">📎</button>
           <button class="btn-secondary btn-sm" onclick="openModalEditarMateria('${m.id}')">✏️</button>
           <button class="btn-danger" onclick="confirmarEliminarMateria('${m.id}', '${escHtml(m.nombre)}')">🗑️</button>
         </div>
@@ -256,4 +257,102 @@ function capFirst(str) {
 
 function escHtml(str) {
   return (str || '').replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ============================================
+// RECURSOS POR MATERIA
+// ============================================
+
+async function openModalRecursos(materiaId) {
+  const materia = _materias.find(m => m.id === materiaId);
+  if (!materia) return;
+
+  const { data: recursos } = await sb
+    .from('recursos')
+    .select('*')
+    .eq('materia_id', materiaId)
+    .order('created_at');
+
+  const listaHTML = (recursos || []).length
+    ? (recursos || []).map(r => rowRecurso(r)).join('')
+    : `<p style="font-size:0.85rem;color:var(--text-muted);text-align:center;padding:16px 0;">
+         Sin recursos todavía. Agregá un link.
+       </p>`;
+
+  const html = `
+    <div id="recursos-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+      ${listaHTML}
+    </div>
+
+    <div style="border-top:1px solid var(--border);padding-top:16px;">
+      <p style="font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;">Agregar recurso</p>
+      <div class="field" style="margin-bottom:10px;">
+        <label>Nombre *</label>
+        <input type="text" id="rec-nombre" placeholder="Ej: Apuntes Unidad 1-3" />
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label>URL *</label>
+        <input type="url" id="rec-url" placeholder="https://drive.google.com/..." />
+      </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label>Detalle (opcional)</label>
+        <input type="text" id="rec-detalle" placeholder="Ej: Con correcciones del profe" />
+      </div>
+      <button class="btn-primary btn-sm" onclick="guardarRecurso('${materiaId}')">+ Agregar</button>
+    </div>`;
+
+  openModal(`📎 Recursos — ${escHtml(materia.nombre)}`, html);
+}
+
+function rowRecurso(r) {
+  return `
+    <div class="recurso-item" id="recurso-${r.id}">
+      <div style="flex:1;min-width:0;">
+        <a href="${escHtml(r.url)}" target="_blank" rel="noopener"
+           style="font-size:0.88rem;font-weight:600;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:6px;">
+          🔗 ${escHtml(r.nombre)}
+        </a>
+        ${r.detalle ? `<p style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">${escHtml(r.detalle)}</p>` : ''}
+      </div>
+      <button class="btn-danger" onclick="eliminarRecurso('${r.id}')">🗑️</button>
+    </div>`;
+}
+
+async function guardarRecurso(materiaId) {
+  const nombre  = document.getElementById('rec-nombre').value.trim();
+  const url     = document.getElementById('rec-url').value.trim();
+  const detalle = document.getElementById('rec-detalle').value.trim() || null;
+
+  if (!nombre) { showToast('El nombre es obligatorio.', 'error'); return; }
+  if (!url)    { showToast('La URL es obligatoria.', 'error'); return; }
+
+  const { data: { user } } = await sb.auth.getUser();
+
+  const { data: r, error } = await sb
+    .from('recursos')
+    .insert({ materia_id: materiaId, user_id: user.id, nombre, url, detalle })
+    .select()
+    .single();
+
+  if (error) { showToast('Error al guardar recurso.', 'error'); return; }
+
+  // Agregar a la lista sin cerrar el modal
+  const lista = document.getElementById('recursos-lista');
+  if (lista) {
+    if (lista.querySelector('p')) lista.innerHTML = '';
+    lista.insertAdjacentHTML('beforeend', rowRecurso(r));
+  }
+
+  // Limpiar campos
+  document.getElementById('rec-nombre').value = '';
+  document.getElementById('rec-url').value = '';
+  document.getElementById('rec-detalle').value = '';
+  showToast('Recurso agregado ✓', 'success');
+}
+
+async function eliminarRecurso(id) {
+  const { error } = await sb.from('recursos').delete().eq('id', id);
+  if (error) { showToast('Error al eliminar.', 'error'); return; }
+  document.getElementById('recurso-' + id)?.remove();
+  showToast('Recurso eliminado.');
 }
