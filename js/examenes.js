@@ -297,17 +297,31 @@ function rowUnidad(u) {
     { val: 'la_domino',   label: 'La domino',  cls: 'active-domino' },
   ];
 
+  const resumido = u.resumido || false;
+
   return `
-    <div class="unidad-item" id="unidad-${u.id}">
-      <span class="unidad-nombre">${escHtml(u.nombre)}</span>
-      <div class="unidad-progress-btns">
-        ${estados.map(s => `
-          <button class="prog-btn ${u.progreso === s.val ? s.cls : ''}"
-                  onclick="setProgresoUnidad('${u.id}', '${s.val}', this)">
-            ${s.label}
-          </button>`).join('')}
+    <div class="unidad-item" id="unidad-${u.id}" style="${resumido ? 'background:var(--green-soft);border-color:#86efac;' : ''}">
+      <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;">
+        <span class="unidad-nombre" style="${resumido ? 'text-decoration:line-through;color:var(--text-muted);' : ''}">${escHtml(u.nombre)}</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="unidad-progress-btns">
+            ${estados.map(s => `
+              <button class="prog-btn ${u.progreso === s.val ? s.cls : ''}"
+                      onclick="setProgresoUnidad('${u.id}', '${s.val}', this)">
+                ${s.label}
+              </button>`).join('')}
+          </div>
+          <label class="toggle-resumido" title="Marcar como resumido">
+            <input type="checkbox" ${resumido ? 'checked' : ''}
+                   onchange="setResumidoUnidad('${u.id}', this.checked, this)"
+                   style="display:none;" />
+            <span class="toggle-chip ${resumido ? 'active' : ''}">
+              ${resumido ? '✅ Resumido' : '📝 Sin resumir'}
+            </span>
+          </label>
+        </div>
       </div>
-      <button class="btn-icon" onclick="eliminarUnidad('${u.id}')" title="Quitar">✕</button>
+      <button class="btn-icon" onclick="eliminarUnidad('${u.id}')" title="Quitar" style="flex-shrink:0;">✕</button>
     </div>`;
 }
 
@@ -378,5 +392,37 @@ async function eliminarExamen(id) {
   if (error) { showToast('Error al eliminar.', 'error'); return; }
   closeModal();
   showToast('Examen eliminado.');
+  await loadExamenes();
+}
+
+async function setResumidoUnidad(unidadId, resumido, inputEl) {
+  const { error } = await sb
+    .from('unidades')
+    .update({ resumido })
+    .eq('id', unidadId);
+
+  if (error) { showToast('Error al guardar.', 'error'); inputEl.checked = !resumido; return; }
+
+  // Actualizar UI de la fila
+  const fila = inputEl.closest('.unidad-item');
+  const nombre = fila.querySelector('.unidad-nombre');
+  const chip = inputEl.closest('label').querySelector('.toggle-chip');
+
+  if (resumido) {
+    fila.style.background = 'var(--green-soft)';
+    fila.style.borderColor = '#86efac';
+    nombre.style.textDecoration = 'line-through';
+    nombre.style.color = 'var(--text-muted)';
+    chip.textContent = '✅ Resumido';
+    chip.classList.add('active');
+  } else {
+    fila.style.background = '';
+    fila.style.borderColor = '';
+    nombre.style.textDecoration = '';
+    nombre.style.color = '';
+    chip.textContent = '📝 Sin resumir';
+    chip.classList.remove('active');
+  }
+
   await loadExamenes();
 }
