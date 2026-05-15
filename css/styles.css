@@ -1237,3 +1237,52 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ==========================================
+   RECURSOS
+   ========================================== */
+.recurso-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  transition: background var(--transition);
+}
+
+.recurso-item:hover { background: var(--bg-hover); }
+
+/* ==========================================
+   TOGGLE RESUMIDO
+   ========================================== */
+.toggle-resumido { cursor: pointer; }
+
+.toggle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border: 1.5px solid var(--border-mid);
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg);
+  transition: all var(--transition);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.toggle-chip:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.toggle-chip.active {
+  background: var(--green-soft);
+  border-color: #86efac;
+  color: #16a34a;
+}
