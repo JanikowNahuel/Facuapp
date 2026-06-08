@@ -15,6 +15,25 @@ async function loadEvaluaciones() {
   renderEvaluaciones();
 }
 
+// ── Grupos de tipos para promedios separados ──
+const GRUPOS_PROMEDIO = [
+  {
+    key:    'parcialitos',
+    label:  'Parcialitos',
+    tipos:  ['parcialito'],
+  },
+  {
+    key:    'parciales',
+    label:  'Parciales / Finales / Recup.',
+    tipos:  ['parcial', 'final', 'recuperatorio'],
+  },
+  {
+    key:    'tps',
+    label:  'TPs',
+    tipos:  ['tp'],
+  },
+];
+
 function renderEvaluaciones() {
   const el = document.getElementById('evaluaciones-list');
 
@@ -41,8 +60,23 @@ function renderEvaluaciones() {
   let html = '';
   for (const key in porMateria) {
     const { materia, items } = porMateria[key];
-    const prom = promedio(items);
     const dotColor = materia?.color || '#4f46e5';
+
+    // Construir chips de promedios por grupo (solo los que tienen ítems con nota)
+    const promedioChips = GRUPOS_PROMEDIO
+      .map(grupo => {
+        const delGrupo = items.filter(i => grupo.tipos.includes(i.tipo));
+        if (!delGrupo.length) return null;
+        const prom = promedio(delGrupo);
+        const color = colorNota(prom);
+        return `
+          <div style="text-align:center;">
+            <span style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:600;${color}">${prom}</span>
+            <p style="font-size:0.65rem;color:var(--text-muted);margin-top:2px;white-space:nowrap;">${grupo.label}</p>
+          </div>`;
+      })
+      .filter(Boolean)
+      .join(`<div style="width:1px;background:var(--border);align-self:stretch;margin:0 4px;"></div>`);
 
     html += `
       <div class="card" style="margin-bottom:14px; border-left:3px solid ${dotColor};">
@@ -50,16 +84,25 @@ function renderEvaluaciones() {
           <div style="display:flex;align-items:center;gap:8px;">
             <span class="card-title">${escHtml(materia?.nombre || '—')}</span>
           </div>
-          <div style="text-align:right;">
-            <span style="font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;">${prom}</span>
-            <p style="font-size:0.7rem;color:var(--text-muted);">promedio</p>
-          </div>
+          ${promedioChips ? `
+          <div style="display:flex;align-items:center;gap:6px;">
+            ${promedioChips}
+          </div>` : ''}
         </div>
         ${items.map(ev => itemEvaluacion(ev)).join('')}
       </div>`;
   }
 
   el.innerHTML = html;
+}
+
+// Devuelve color inline según la nota (o vacío si no hay nota)
+function colorNota(promStr) {
+  if (promStr === '—') return 'color:var(--text-muted);';
+  const n = parseFloat(promStr);
+  if (n >= 6) return 'color:var(--green);';
+  if (n >= 4) return 'color:var(--yellow);';
+  return 'color:var(--red);';
 }
 
 function itemEvaluacion(ev) {
@@ -94,6 +137,7 @@ function itemEvaluacion(ev) {
     </div>`;
 }
 
+// Calcula el promedio de un array de evaluaciones (solo las que tienen nota cargada)
 function promedio(items) {
   const conNota = items.filter(i => i.nota != null);
   if (!conNota.length) return '—';
