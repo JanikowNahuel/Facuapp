@@ -12,7 +12,7 @@
 <body>
 
   <!-- ==============================
-       PANTALLA DE AUTH (login/registro)
+       PANTALLA DE AUTH
        ============================== -->
   <div id="auth-screen" class="auth-screen">
     <div class="auth-card">
@@ -22,13 +22,11 @@
         <p class="logo-sub">Tu organizador universitario</p>
       </div>
 
-      <!-- Tabs login / registro -->
       <div class="auth-tabs">
         <button class="auth-tab active" data-tab="login">Iniciar sesión</button>
         <button class="auth-tab" data-tab="register">Registrarse</button>
       </div>
 
-      <!-- Login -->
       <div class="auth-form active" id="form-login">
         <div class="field">
           <label>Email</label>
@@ -42,7 +40,6 @@
         <p class="auth-error" id="login-error"></p>
       </div>
 
-      <!-- Registro -->
       <div class="auth-form" id="form-register">
         <div class="field">
           <label>Nombre</label>
@@ -67,135 +64,72 @@
   </div>
 
   <!-- ==============================
-       APP PRINCIPAL (visible post-login)
+       APP PRINCIPAL
        ============================== -->
   <div id="app" class="app hidden">
-
-    <!-- Overlay para cerrar sidebar en mobile -->
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-logo">
-          <span>📚</span>
-          <span class="sidebar-logo-text">Cursada</span>
-        </div>
-        <button class="sidebar-close" id="sidebar-close">✕</button>
-      </div>
-
-      <!-- Perfil del usuario -->
-      <div class="sidebar-profile">
-        <div class="profile-avatar" id="sidebar-avatar">?</div>
-        <div class="profile-info">
-          <p class="profile-name" id="sidebar-name">...</p>
-          <p class="profile-carrera" id="sidebar-carrera">...</p>
-        </div>
-      </div>
-
-      <!-- Navegación -->
-      <nav class="sidebar-nav">
-        <a class="nav-item active" data-section="dashboard">
-          <span class="nav-icon">🏠</span>
-          <span>Inicio</span>
-        </a>
-        <a class="nav-item" data-section="materias">
-          <span class="nav-icon">📖</span>
-          <span>Materias</span>
-        </a>
-        <a class="nav-item" data-section="examenes">
-          <span class="nav-icon">📝</span>
-          <span>Exámenes</span>
-        </a>
-        <a class="nav-item" data-section="evaluaciones">
-          <span class="nav-icon">⭐</span>
-          <span>Evaluaciones</span>
-        </a>
-        <a class="nav-item" data-section="calendario">
-          <span class="nav-icon">📅</span>
-          <span>Calendario</span>
-        </a>
-      </nav>
-
-      <div class="sidebar-footer">
-        <button class="btn-logout" id="btn-logout">
-          <span>↩</span> Cerrar sesión
-        </button>
-      </div>
-    </aside>
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="main-content">
 
-      <!-- Header con hamburger -->
-      <header class="top-bar">
-        <button class="hamburger" id="hamburger">
-          <span></span>
-          <span></span>
-          <span></span>
+      <!-- Top bar -->
+      <header class="top-bar" id="top-bar">
+        <button class="btn-back hidden" id="btn-back">
+          <span>←</span>
         </button>
         <h2 class="page-title" id="page-title">Inicio</h2>
-        <div class="top-bar-right">
-          <!-- espacio para acciones contextuales -->
-        </div>
+        <div class="top-bar-right" id="top-bar-right"></div>
       </header>
 
-      <!-- Secciones -->
+      <!-- Secciones principales -->
       <div class="sections-wrapper">
 
         <!-- DASHBOARD -->
         <section class="section active" id="section-dashboard">
-          <div id="dashboard-content">
-            <!-- renderizado por dashboard.js -->
-          </div>
+          <div id="dashboard-content"></div>
         </section>
 
-        <!-- MATERIAS -->
+        <!-- MATERIAS (lista) -->
         <section class="section" id="section-materias">
-          <div class="section-header">
-            <h3>Mis materias</h3>
-            <button class="btn-primary btn-sm" id="btn-nueva-materia">+ Nueva materia</button>
-          </div>
-          <div id="materias-list">
-            <!-- renderizado por materias.js -->
-          </div>
+          <div id="materias-list"></div>
         </section>
 
-        <!-- EXAMENES -->
-        <section class="section" id="section-examenes">
-          <div class="section-header">
-            <h3>Exámenes</h3>
-            <button class="btn-primary btn-sm" id="btn-nuevo-examen">+ Nuevo examen</button>
-          </div>
-          <div id="examenes-list">
-            <!-- renderizado por examenes.js -->
-          </div>
-        </section>
-
-        <!-- EVALUACIONES -->
-        <section class="section" id="section-evaluaciones">
-          <div class="section-header">
-            <h3>Evaluaciones</h3>
-            <button class="btn-primary btn-sm" id="btn-nueva-evaluacion">+ Agregar nota</button>
-          </div>
-          <div id="evaluaciones-list">
-            <!-- renderizado por evaluaciones.js -->
-          </div>
+        <!-- DETALLE DE MATERIA (nueva pantalla) -->
+        <section class="section" id="section-materia-detalle">
+          <div id="materia-detalle-content"></div>
         </section>
 
         <!-- CALENDARIO -->
         <section class="section" id="section-calendario">
-          <div id="calendario-content">
-            <!-- renderizado por dashboard.js -->
-          </div>
+          <div id="calendario-content"></div>
         </section>
 
       </div>
     </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <button class="bnav-item active" data-section="dashboard">
+        <span class="bnav-icon">🏠</span>
+        <span class="bnav-label">Inicio</span>
+      </button>
+      <button class="bnav-item" data-section="materias">
+        <span class="bnav-icon">📖</span>
+        <span class="bnav-label">Materias</span>
+      </button>
+      <button class="bnav-item" data-section="calendario">
+        <span class="bnav-icon">📅</span>
+        <span class="bnav-label">Calendario</span>
+      </button>
+      <button class="bnav-item" id="bnav-perfil" data-section="perfil">
+        <span class="bnav-icon" id="bnav-avatar">?</span>
+        <span class="bnav-label">Perfil</span>
+      </button>
+    </nav>
+
   </div>
 
   <!-- ==============================
-       MODALES (se activan por JS)
+       MODALES
        ============================== -->
   <div class="modal-backdrop hidden" id="modal-backdrop">
     <div class="modal" id="modal">
@@ -203,22 +137,40 @@
         <h3 id="modal-title">Modal</h3>
         <button class="modal-close" id="modal-close">✕</button>
       </div>
-      <div class="modal-body" id="modal-body">
-        <!-- contenido dinámico -->
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Modal de perfil/logout -->
+  <div class="modal-backdrop hidden" id="perfil-backdrop">
+    <div class="modal" id="perfil-modal">
+      <div class="modal-header">
+        <h3>Perfil</h3>
+        <button class="modal-close" onclick="cerrarPerfil()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="perfil-info">
+          <div class="perfil-avatar" id="perfil-avatar">?</div>
+          <div>
+            <p class="perfil-nombre" id="perfil-nombre">...</p>
+            <p class="perfil-carrera" id="perfil-carrera">...</p>
+          </div>
+        </div>
+        <button class="btn-danger btn-full" id="btn-logout" style="margin-top:8px;">↩ Cerrar sesión</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast de notificaciones -->
+  <!-- Toast -->
   <div class="toast hidden" id="toast"></div>
 
-  <!-- Scripts: config primero, luego módulos, luego app -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/materias.js"></script>
   <script src="js/examenes.js"></script>
   <script src="js/evaluaciones.js"></script>
+  <script src="js/recordatorios.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/app.js"></script>
 </body>
